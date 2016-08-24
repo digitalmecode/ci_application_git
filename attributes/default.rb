@@ -5,4 +5,4 @@
 #
 # Copyright (c) 2015 Radiowaves Schools Ltd, All Rights Reserved.
 
-default['application_git']['installgit'] = 'true'
+default['application_git']['installgit'] = 'false'

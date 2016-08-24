@@ -146,8 +146,10 @@ module PoiseApplicationGit
     def load_current_resource
       #include_recipe('git')
       #Install the git recipe
-      if  node[:framework_chef][:isiis] == "true"
+      if  node[:application_git][:installgit] == "true"
         include_recipe('git')
+      else
+       log "Dont install git.  Set installgit to true if you wish to install git"
       end 
 
       notifying_block do
