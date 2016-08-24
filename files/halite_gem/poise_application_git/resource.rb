@@ -144,7 +144,12 @@ module PoiseApplicationGit
     #
     # @api private
     def load_current_resource
-      include_recipe('git')
+      #include_recipe('git')
+      #Install the git recipe
+      if  (node[:framework_chef][:isiis] == "true") do
+        include_recipe('git')
+      end 
+
       notifying_block do
         create_dotssh
         write_deploy_key
