@@ -146,7 +146,7 @@ module PoiseApplicationGit
     def load_current_resource
       #include_recipe('git')
       #Install the git recipe
-      if  (node[:framework_chef][:isiis] == "true") do
+      if  node[:framework_chef][:isiis] == "true"
         include_recipe('git')
       end 
 
