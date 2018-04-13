@@ -2,11 +2,8 @@
 
 [![License](https://img.shields.io/badge/license-Apache_2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-A cookbook based off the Application_Git cookbook.  Using for accessing private code on Git.
-
-Hosted here so that I could add a small admend for AWS Opsworks.  
-
-The install git command is now a parameter.  This prevents it installing git when its already installed
+A [Chef](https://www.chef.io/) cookbook to handle deploying code from git when
+using the [application cookbook](https://github.com/poise/application).
 
 ## Quick Start
 
@@ -22,7 +19,7 @@ end
 
 ## Requirements
 
-Chef 12 or newer is required.
+Chef 12.1 or newer is required.
 
 ### Attributes
 
@@ -95,7 +92,7 @@ The Poise test server infrastructure is sponsored by [Rackspace](https://rackspa
 
 ## License
 
-Copyright 2015-2016, Noah Kantrowitz
+Copyright 2015-2017, Noah Kantrowitz
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
