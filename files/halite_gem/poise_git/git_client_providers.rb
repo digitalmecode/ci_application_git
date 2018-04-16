@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2016, Noah Kantrowitz
+# Copyright 2017, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,23 @@
 # limitations under the License.
 #
 
+require 'chef/platform/provider_priority_map'
 
-module PoiseApplicationGit
-  # A string that won't be shown in Chef error output
-  class SafeString < String
-    def to_text
-      '"suppressed sensitive value"'
-    end
+require 'poise_git/git_client_providers/dummy'
+require 'poise_git/git_client_providers/system'
+
+
+module PoiseGit
+  # Inversion providers for the poise_git resource.
+  #
+  # @since 1.0.0
+  module GitClientProviders
+    autoload :Base, 'poise_git/git_client_providers/base'
+
+    # Set up priority maps
+    Chef::Platform::ProviderPriorityMap.instance.priority(:poise_git_client, [
+      PoiseGit::GitClientProviders::Dummy,
+      PoiseGit::GitClientProviders::System,
+    ])
   end
 end

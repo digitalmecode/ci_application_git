@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2017, Noah Kantrowitz
+# Copyright 2017, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,24 @@
 # limitations under the License.
 #
 
-require 'poise_application_git/resource'
+require 'poise/utils'
+require 'poise_languages'
 
 
-module PoiseApplicationGit
+module PoiseGit
+  # Mixin for resources and providers which run Git commands.
+  #
+  # @since 1.0.0
+  module GitCommandMixin
+    include Poise::Utils::ResourceProviderMixin
+
+    # Mixin for resources which run Git commands.
+    module Resource
+      include PoiseLanguages::Command::Mixin::Resource(:git, runtime: :poise_git_client)
+    end
+
+    module Provider
+      include PoiseLanguages::Command::Mixin::Provider(:git)
+    end
+  end
 end

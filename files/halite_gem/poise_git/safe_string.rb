@@ -14,4 +14,12 @@
 # limitations under the License.
 #
 
-require 'poise_application_git'
+
+module PoiseGit
+  # A string that won't be shown in Chef error output
+  class SafeString < String
+    def to_text
+      '"suppressed sensitive value"'
+    end
+  end
+end

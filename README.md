@@ -1,92 +1,136 @@
-# Application_Git Cookbook
+# Poise-Git Cookbook
 
+[![Build Status](https://img.shields.io/travis/poise/poise-git.svg)](https://travis-ci.org/poise/poise-git)
+[![Gem Version](https://img.shields.io/gem/v/poise-git.svg)](https://rubygems.org/gems/poise-git)
+[![Cookbook Version](https://img.shields.io/cookbook/v/poise-git.svg)](https://supermarket.chef.io/cookbooks/poise-git)
+[![Coverage](https://img.shields.io/codecov/c/github/poise/poise-git.svg)](https://codecov.io/github/poise/poise-git)
+[![Gemnasium](https://img.shields.io/gemnasium/poise/poise-git.svg)](https://gemnasium.com/poise/poise-git)
 [![License](https://img.shields.io/badge/license-Apache_2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-A [Chef](https://www.chef.io/) cookbook to handle deploying code from git when
-using the [application cookbook](https://github.com/poise/application).
+A [Chef](https://www.chef.io/) cookbook to manage [Git](https://git-scm.com/).
 
 ## Quick Start
 
-To deploy from a private GitHub repository:
+To install Git and clone a repository using a deploy key from a data bag:
 
 ```ruby
-application '/srv/myapp' do
-  git 'git@github.com:example/myapp.git' do
-    deploy_key chef_vault_item('deploy_keys', 'myapp')['key']
-  end
+poise_git '/srv/myapp' do
+  repository 'git@github.com:example/myapp.git'
+  deploy_key data_bag_item('keys', 'myapp')['key']
 end
 ```
 
-## Requirements
+To install Git and clone a repository using a deploy key that already exists on
+disk:
 
-Chef 12.1 or newer is required.
+```ruby
+poise_git '/srv/myapp' do
+  repository 'git@github.com:example/myapp.git'
+  deploy_key '/path/to/mykey.pem'
+end
+```
 
-### Attributes
+## Recipes
 
-Set 'node[:application_git][:installgit]' to true to install git
+* `poise-git::default` – Install Git.
+
+## Attributes
+
+* `node['poise-git']['default_recipe']` – Recipe used by `poise_git` to install
+  Git if not already available. *(default: poise-git)*
+* `node['poise-git']['provider']` – Default provider for `poise_git_client` resource
+  instances. *(default: auto)*
+* `node['poise-git']['recipe'][*]` – All subkeys of `'recipe'` will be passed
+  as properties to the `poise_git_client` resource before installation when using
+  the `poise-git::default` recipe.
 
 ## Resources
 
-### `application_git`
+### `poise_git`
 
-The `application_git` resource deploys code from git. It extends the core `git`
-resource to support deploy keys and disabling strict host key verification.
+The `poise_git` resource extends the core `git` resource, adding a `deploy_key`
+property to use SSH deploy keys automatically.
 
 ```ruby
-application '/srv/myapp' do
-  git 'git@github.com:example/myapp.git'
+poise_git '/srv/myapp' do
+  repository 'git@github.com:example/myapp.git'
+  deploy_key 'mysecretkey'
 end
+```
+
+The `poise_git` resource supports all the same actions and properties as the
+core `git` resource.
+
+The `deploy_key` property can either be passed the absolute path to an existing
+SSH key file, or the raw SSH private key text.
+
+### `poise_git_client`
+
+The `poise_git_client` resource installs Git.
+
+```ruby
+poise_git_client 'git'
 ```
 
 #### Actions
 
-All actions work the same as the core `git` resource.
-
-* `:sync` – Clone and checkout the requested revision *(default)*
-* `:checkout` – Checkout the request revision. If the repository isn't already
-  cloned, this action does nothing.
-* `:export` – Export the repository without the `.git` folder.
+* `:install` – Install Git. *(default)*
+* `:uninstall` – Uninstall Git.
 
 #### Properties
 
-All properties from the core `git` resource work the same way with the following
-additions:
+* `version` – Version of Git to install. If a partial version is given, use the
+  latest available version matching that prefix. *(name property)*
 
-* `deploy_key` – SSH key to use with git. Can be specified either as a path to
-  key file already created or as a string value containing the key directly.
-* `strict_ssh` – Enable strict SSH host key checking. *(default: false)*
+#### Provider Options
 
-### DSL Usage
+The `poise_git_client` resource uses provide options for per-provider configuration. See
+[the poise-service documentation](https://github.com/poise/poise-service#service-options)
+for more information on using provider options.
 
-The `application_git` resource can be used directly as a replacement for the
-core `git` resource:
+## Git Client Providers
+
+### `system`
+
+The `system` provider installs Git using system packages. This is currently
+only tested on platforms using `apt-get` and `yum` (Debian, Ubuntu, RHEL, CentOS
+Amazon Linux, and Fedora) and is a default provider on those platforms. It may
+work on other platforms but is untested.
 
 ```ruby
-application_git '/srv/myapp' do
-  repository 'git@github.com:example/myapp.git'
-  deploy_key chef_vault_item('deploy_keys', 'myapp')['key']
+poise_git_client 'git' do
+  provider :system
 end
 ```
 
-Within the `application` resource, a simplified DSL is available. As with other
-`application` plugins, the default name of the resource if unspecified is the
-application path. The following two examples are equivalent:
+#### Options
+
+* `package_name` – Override auto-detection of the package name.
+* `package_upgrade` – Install using action `:upgrade`. *(default: false)*
+* `package_version` – Override auto-detection of the package version.
+
+### `dummy`
+
+The `dummy` provider supports using the `poise_git_client` resource with ChefSpec
+or other testing frameworks to not actually install Git. It is used by default under
+ChefSpec. It can also be used to manage the Git installation externally from
+this cookbook.
 
 ```ruby
-application '/srv/myapp' do
-  git do
-    repository 'git@github.com:example/myapp.git'
-  end
-end
-
-application '/srv/myapp' do
-  git 'git@github.com:example/myapp.git'
+poise_git_client 'git' do
+  provider :dummy
+  options git_binary: '/path/to/git'
 end
 ```
+
+#### Provider Options
+
+* `git_binary` – Path to the `git` executable. *(default: /git)*
+* `git_environment` – Hash of environment variables to use with this Git. *(default: {})*
 
 ## Sponsors
 
-Development sponsored by [Chef Software](https://www.chef.io/), [Symonds & Son](http://symondsandson.com/), and [Orion](https://www.orionlabs.co/).
+Development sponsored by [SAP](https://www.sap.com/).
 
 The Poise test server infrastructure is sponsored by [Rackspace](https://rackspace.com/).
 

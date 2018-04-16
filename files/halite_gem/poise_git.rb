@@ -14,4 +14,11 @@
 # limitations under the License.
 #
 
-require 'poise_application_git/resource'
+
+module PoiseGit
+  autoload :GitClientProviders, 'poise_git/git_client_providers'
+  autoload :GitCommandMixin, 'poise_git/git_command_mixin'
+  autoload :Resources, 'poise_git/resources'
+  autoload :SafeString, 'poise_git/safe_string'
+  autoload :VERSION, 'poise_git/version'
+end

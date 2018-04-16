@@ -1,5 +1,5 @@
 #
-# Copyright 2015-2017, Noah Kantrowitz
+# Copyright 2017, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,5 @@
 # limitations under the License.
 #
 
-
-module PoiseApplicationGit
-  VERSION = '1.2.0'
-end
+require 'poise_git/resources'
+require 'poise_git/git_client_providers'
